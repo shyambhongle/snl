@@ -1,5 +1,10 @@
 .Container{
-    height: 60px;
-    width: 100px;
-    margin: 0px 5px;
+    margin:5px 5px;
+}
+
+.tempObs{
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: pink;
 }

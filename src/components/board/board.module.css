@@ -7,7 +7,7 @@
 .Wrapper{
  display: flex;
     flex-direction: column-reverse;
-    flex: 3;
-    justify-content: space-between;
     background-color: blue;
+    flex:1;
+    position:'relative'
 }

@@ -7,11 +7,7 @@ const Row = (props) => {
   return (
     <div className={styles.Container}>
       {rowDetails.map((boxes) => (
-        <Boxes
-          boxDetails={boxes}
-          key={boxes.displayNum}
-          currentBox={props.currentBox}
-        />
+        <Boxes boxDetails={boxes} key={boxes.displayNum} />
       ))}
     </div>
   );
