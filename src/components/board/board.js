@@ -1,263 +1,180 @@
 import React, { useState, useEffect } from "react";
 import styles from "./board.module.css";
 
-import SideBar from "../sidebar/sidebar";
-import Row from "../row/row";
-import Player from "../player/player";
-import Canvas from "../canvas/canvas";
+import Layout from "../layout/layout";
+
+const playerColor = ["red", "green", "yellow", "blue"];
+const playerShape = ["square", "circle"];
+const gameStateDetails = ["not-started", "started", "end"];
+
+// const singleBoxDetails = {
+//   offsetLeft: 0,
+//   offsetTop: 0,
+//   displayNum: 0,
+//   indexNum: 0,
+//   rowNum: 0,
+//   hasObstacle: false,
+//   obstacleDetails: {},
+// };
+
+const playerDetailsOne = {
+  color: playerColor[1],
+  shape: playerShape[1],
+  displayNum: 0,
+  indexNum: 0,
+  rowNum: 0,
+  playerId: "ram",
+};
+
+const playerDetailsTwo = {
+  color: playerColor[0],
+  shape: playerShape[0],
+  displayNum: 0,
+  indexNum: 0,
+  rowNum: 0,
+  playerId: "shyam",
+};
 
 const Board = () => {
-  const boardWidth = window.innerWidth - 300;
-  const boardHeight = window.innerHeight;
-  const shuffleArray = [0, 1, 2, 3, 4, 5, 6, 7, 9];
-
-  let defaultPlayerDetails1 = {
-    position: {
-      top: 0,
-      left: 0,
-    },
-    currentBox: 0,
-    boxDetails: {},
-    shape: "circle",
-    color: "green",
+  const boardHeight = window.innerHeight - 200;
+  const boardWidth = window.innerWidth;
+  const totalRows = 10;
+  const boxesInRows = 10;
+  const boxDimension = {
+    height: boardHeight / totalRows,
+    width: boardWidth / boxesInRows,
   };
-
-  let defaultPlayerDetails2 = {
-    position: {
-      top: 0,
-      left: 0,
-    },
-    currentBox: 0,
-    boxDetails: {},
-    shape: "square",
-    color: "red",
-  };
-
-  const [rowDetails, setRowDetails] = useState([]);
-  const [playerDetails, setPlayerDetails] = useState([
-    defaultPlayerDetails1,
-    defaultPlayerDetails2,
-  ]);
-  const [obstacle, setObstacle] = useState([]);
+  const [layout, setLayout] = useState([]);
+  const [players, setPlayers] = useState([playerDetailsOne, playerDetailsTwo]);
+  const [dice, setdice] = useState(0);
   const [playerTurn, setPlayerTurn] = useState(0);
-
-  const boxesInRow = 10;
+  const [gameState, setGameState] = useState(gameStateDetails[0]);
 
   useEffect(() => {
-    genrateBoard();
+    genrateBoxes();
   }, []);
 
-  const genrateBoard = async () => {
+  useEffect(() => {
+    playerMovement();
+  }, [playerTurn]);
+
+  const genrateBoxes = () => {
+    const rowLayout = [];
     let boxNum = 1;
-    const rows = [];
-    for (let i = 0; i < 10; i++) {
-      let boxes = [];
+    for (let i = 0; i < totalRows; i++) {
+      const boxLayout = [];
       let displayNum = boxNum;
-      for (let j = 0; j < boxesInRow; j++) {
-        let boxData = {
-          displayNum: i % 2 === 0 ? displayNum : displayNum + (boxesInRow - 1),
+      for (let j = 0; j < boxesInRows; j++) {
+        let boxDetails = {
+          offsetLeft: 0,
+          offsetTop: 0,
+          displayNum: i % 2 === 0 ? displayNum : displayNum + (boxesInRows - 1),
           indexNum: j,
-          row: i,
-          isSnake: false,
-          isLadder: false,
-          color: [],
-          dimension: {},
+          rowNum: i,
+          hasObstacle: false,
+          obstacleDetails: {},
         };
-
-        const boxDimension = setBoxPixel(boxData);
-        boxData.dimension = boxDimension;
+        const dimension = setBoxPixel(boxDetails);
         i % 2 === 0 ? displayNum++ : displayNum--;
-        boxes.push(boxData);
+        boxLayout.push({ ...boxDetails, ...dimension });
       }
-      rows.push(boxes);
       boxNum += 10;
+      rowLayout.push(boxLayout);
     }
-    const { newRows, tempSnake } = placeSnake(rows);
-    const { allObstacle, updateROw } = placeLadder(newRows, tempSnake);
-    console.log("khalsc updateROw", updateROw);
-    console.log("allObstacle updateROw", allObstacle);
-
-    setRowDetails(updateROw);
-    setObstacle(allObstacle);
+    setLayout(rowLayout);
   };
 
-  const placeSnake = (rows) => {
-    const tempSnake = [];
-    rows.forEach((_, i) => {
-      if (i !== 9 && i % 2 !== 0) {
-        let randomNum = shuffle(shuffleArray);
-        let tail = rows[i][randomNum[0]];
-        if (randomNum[1] <= i) {
-          randomNum[1] = i + 1;
-        }
-        let mouth = rows[randomNum[1]][randomNum[2]];
-        tempSnake.push({
-          startNum: `${mouth.displayNum}`,
-          endNum: `${tail.displayNum}`,
-          start: mouth,
-          end: tail,
-          color: [randomNum[1], randomNum[2], randomNum[0]],
-          obstacleType: "snake",
-        });
-        rows[tail.row][tail.indexNum] = {
-          ...tail,
-          isSnake: true,
-          color: [randomNum[1], randomNum[2], randomNum[0]],
-        };
-        rows[mouth.row][mouth.indexNum] = {
-          ...mouth,
-          isSnake: true,
-          color: [randomNum[1], randomNum[2], randomNum[0]],
-        };
-      }
-    });
-
-    return { tempSnake, newRows: rows };
-  };
-
-  const placeLadder = (rows, sankes) => {
-    const tempLadder = [];
-    rows.forEach((_, i) => {
-      if (i !== 9 && i % 2 === 0) {
-        let randomNum = shuffle(shuffleArray);
-        let startingPoint = rows[i][randomNum[0]];
-        if (randomNum[1] <= i) {
-          randomNum[1] = i + 1;
-        }
-        let endPoint = rows[randomNum[1]][randomNum[2]];
-        if (startingPoint.isSnake) {
-          let updatedPoint =
-            randomNum[0] === 9 || randomNum[0] === 0 ? 8 : randomNum[1] - 1;
-          startingPoint = rows[i][updatedPoint];
-          if (startingPoint.isSnake) {
-            startingPoint = rows[i][5];
-          }
-        }
-        if (endPoint.isSnake) {
-          let updatedPoint =
-            randomNum[2] === 9 || randomNum[2] === 0 ? 8 : randomNum[1] - 1;
-          endPoint = rows[randomNum[1]][updatedPoint];
-          if (endPoint.isSnake) {
-            endPoint = rows[i][5];
-          }
-        }
-        tempLadder.push({
-          startNum: `${startingPoint.displayNum}`,
-          endNum: `${endPoint.displayNum}`,
-          start: startingPoint,
-          end: endPoint,
-          color: [randomNum[1], randomNum[2], randomNum[0]],
-          obstacleType: "ladder",
-        });
-        rows[startingPoint.row][startingPoint.indexNum] = {
-          ...startingPoint,
-          isLadder: true,
-          color: [randomNum[1], randomNum[2], randomNum[0]],
-        };
-        rows[endPoint.row][endPoint.indexNum] = {
-          ...endPoint,
-          isLadder: true,
-          color: [randomNum[1], randomNum[2], randomNum[0]],
-        };
-      }
-    });
-    return { allObstacle: [...sankes, ...tempLadder], updateROw: rows };
-  };
-
-  function shuffle(array) {
-    let currentIndex = array.length,
-      randomIndex;
-    // While there remain elements to shuffle...
-    while (currentIndex !== 0) {
-      // Pick a remaining element...
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-      // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex],
-        array[currentIndex],
-      ];
+  const diceRoll = () => {
+    const diceValue = Math.floor(Math.random() * (6 - 1 + 1)) + 1;
+    if (gameState === gameStateDetails[0]) {
+      setGameState(gameStateDetails[1]);
     }
-    return array;
-  }
+    console.log("kaljsc diceValue", diceValue);
+    setdice(1);
+    setPlayerTurn((playerTurn) => {
+      playerTurn += 1;
+      let updateTurn = playerTurn === players.length ? 0 : playerTurn;
+      return updateTurn;
+    });
+  };
+
+  const playerMovement = (diceNum = dice) => {
+    let roll = 1;
+    for (let index = 1; index <= diceNum; index++) {
+      const currentPlayer = players[playerTurn];
+      if (currentPlayer.displayNum) {
+        let newDisplayNum = currentPlayer.displayNum + roll;
+        let currentRow = currentPlayer.rowNum;
+        const isEven = currentRow % 2 === 0;
+        if (isEven && currentPlayer.indexNum + roll > 9) {
+          currentRow += 1;
+        }
+        if (!isEven && currentPlayer.indexNum - roll < 0) {
+          currentRow += 1;
+        }
+        let updateDetails = layout[currentRow].filter((boxes) => {
+          return boxes.displayNum === newDisplayNum;
+        });
+        let updatedValue = {
+          ...currentPlayer,
+          offsetLeft: updateDetails[0].offsetLeft,
+          offsetTop: updateDetails[0].offsetTop,
+          displayNum: newDisplayNum,
+          indexNum: updateDetails[0].indexNum,
+          rowNum: updateDetails[0].rowNum,
+        };
+        let updatedPlayers = [...players];
+        updatedPlayers[playerTurn] = updatedValue;
+        setTimeout(() => {
+          setPlayers(updatedPlayers);
+        }, 300 * roll);
+      } else {
+        let updatedValue = {
+          ...currentPlayer,
+          offsetLeft: layout[0][roll].offsetLeft,
+          offsetTop: layout[0][roll].offsetTop,
+          displayNum: roll,
+          indexNum: layout[0][roll].indexNum - 1,
+          rowNum: layout[0][roll].rowNum,
+        };
+        let updatedPlayers = [...players];
+        updatedPlayers[playerTurn] = updatedValue;
+        setTimeout(() => {
+          setPlayers(updatedPlayers);
+        }, 300 * roll);
+      }
+      roll++;
+    }
+  };
 
   const setBoxPixel = (boxData) => {
-    const boxWidth = boardWidth / 10 - 10;
-    const boxHeight = boardHeight / 10 - 10;
-    let offsetLeft = boxWidth * (boxData.indexNum + 1) - boxData.indexNum * 0.8;
-    let offsetTop = boxHeight * (boxData.row + 1) + boxData.row * 10;
+    const boxWidth = boxDimension.width;
+    const boxHeight = boxDimension.height;
+    let offsetLeft = boxWidth * boxData.indexNum;
+    let offsetTop = boxHeight * (boxData.rowNum + 1);
     const offsetTopCorrection = boardHeight - offsetTop;
     return {
-      width: boxWidth,
-      height: boxHeight,
       offsetLeft,
       offsetTop: offsetTopCorrection,
     };
   };
 
-  const playerMoment = (rollNum) => {
-    const updatedValue = rowCheck(rollNum);
-    setPlayerDetails(updatedValue);
-  };
-
-  const rowCheck = (rollNum) => {
-    const currentPlayer = playerDetails[playerTurn];
-    const { boxDetails } = currentPlayer;
-    if (boxDetails.displayNum) {
-      let newDisplayNum = boxDetails.displayNum + rollNum;
-      let currentRow = boxDetails.row;
-      const isEven = currentRow % 2 === 0;
-      if (isEven && boxDetails.indexNum + rollNum > 9) {
-        currentRow += 1;
-      }
-      if (!isEven && boxDetails.indexNum - rollNum < 0) {
-        currentRow += 1;
-      }
-      let updateDetails = rowDetails[currentRow].filter((boxes) => {
-        return boxes.displayNum === newDisplayNum;
-      });
-      let updatedValue = {
-        ...currentPlayer,
-        currentBox: newDisplayNum,
-        boxDetails: updateDetails[0],
-      };
-      let players = [...playerDetails];
-      players[playerTurn] = updatedValue;
-      return players;
-    } else {
-      let updatedValue = {
-        ...currentPlayer,
-        currentBox: rollNum,
-        boxDetails: { ...rowDetails[0][0] },
-      };
-      let players = [...playerDetails];
-      players[playerTurn] = updatedValue;
-      return players;
-    }
-  };
-
-  const diceRoll = () => {
-    const rollNum = Math.floor(Math.random() * (6 - 1 + 1)) + 1;
-    playerMoment(rollNum);
-    let currentPlayer = playerTurn + 1;
-    if (currentPlayer >= playerDetails.length) currentPlayer = 0;
-    setPlayerTurn(currentPlayer);
-  };
-
   return (
-    <div className={styles.Container}>
-      <SideBar roll={diceRoll} genrateBoard={genrateBoard} />
-      <div className={styles.Wrapper}>
-        {rowDetails.map((singleRow, i) => {
-          return <Row rowDetails={singleRow} key={i} />;
-        })}
-        {playerDetails.map((player, i) => (
-          <Player key={i} player={player} index={i} playerTurn={playerTurn} />
-        ))}
-        {/* {obstacle.map((details, i) => (
-          <Obstacle obstacleDetails={details} key={i} index={i} />
-        ))} */}
-        <Canvas width={boardWidth} height={boardHeight} obstacle={obstacle} />
+    <div className={styles.boardContainer}>
+      <div
+        className={styles.board}
+        style={{ height: `${boardHeight}px`, width: `${boardWidth}px` }}
+      >
+        <Layout
+          layout={layout}
+          boxDimension={boxDimension}
+          players={players}
+          playerTurn={playerTurn}
+          gameState={gameState}
+        />
+      </div>
+      <div className={styles.dashBoard}>
+        <button onClick={diceRoll}>Roll</button>
       </div>
     </div>
   );

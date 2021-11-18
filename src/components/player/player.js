@@ -1,28 +1,41 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./player.module.css";
 
+const initialState = {
+  offsetLeft: -100,
+  offsetTop: -100,
+};
+
 const Player = (props) => {
-  const { player, playerTurn, index } = props;
-  const shape = "square";
-  const { boxDetails } = player;
-  console.log("klajsc", boxDetails);
+  const { allPlayers, playerTurn, playerDetails } = props;
+
+  const [playerPosition, setplayerPosition] = useState(initialState);
+
+  useEffect(() => {
+    if (
+      allPlayers[playerTurn] &&
+      allPlayers[playerTurn].playerId === playerDetails.playerId
+    ) {
+      console.log("Inside kk", playerDetails);
+      setplayerPosition(() => {
+        return {
+          offsetLeft: playerDetails.offsetLeft,
+          offsetTop: playerDetails.offsetTop,
+        };
+      });
+    }
+  }, [props]);
+
   return (
-    <>
-      {boxDetails.dimension && (
-        <div
-          className={styles.Container}
-          style={{
-            top: boxDetails.dimension.offsetTop,
-            left: boxDetails.dimension.offsetLeft + 300,
-          }}
-        >
-          <div
-            className={`${styles[shape]}`}
-            style={{ backgroundColor: `${player.color}` }}
-          ></div>
-        </div>
-      )}
-    </>
+    <div
+      className={styles.playerWrapper}
+      style={{
+        left: playerPosition.offsetLeft,
+        top: playerPosition.offsetTop,
+        backgroundColor: playerDetails.color,
+        borderRadius: playerDetails.shape === "square" ? "0px" : "50px",
+      }}
+    ></div>
   );
 };
 

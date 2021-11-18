@@ -2,21 +2,50 @@ import React from "react";
 import styles from "./boxes.module.css";
 
 const Boxes = (props) => {
-  const { boxDetails } = props;
+  const { box, boxDimension } = props;
   return (
     <div
-      className={styles.Container}
       style={{
-        height: boxDetails.dimension.height,
-        width: boxDetails.dimension.width,
-        backgroundColor: boxDetails.color.length
-          ? `rgb(${boxDetails.color[0] * 23},${boxDetails.color[1] * 23},${
-              boxDetails.color[2] * 23
-            })`
-          : "gray",
+        height: boxDimension.height,
+        width: boxDimension.width,
+        position: "relative",
+        backgroundColor:
+          box.rowNum % 2 === 0
+            ? box.indexNum % 2 === 0
+              ? "black"
+              : "white"
+            : box.indexNum % 2 === 0
+            ? "white"
+            : "black",
       }}
     >
-      <span>{props.boxDetails.displayNum}</span>
+      <span
+        style={{
+          color:
+            box.rowNum % 2 === 0
+              ? box.indexNum % 2 === 0
+                ? "white"
+                : "black"
+              : box.indexNum % 2 === 0
+              ? "black"
+              : "white",
+          fontSize: 12,
+        }}
+      >
+        {box.displayNum}
+      </span>
+      <span
+        style={{
+          color: box.rowNum % 2 === 0 ? "red" : "red",
+
+          fontSize: 12,
+          position: "absolute",
+          right: 0,
+          bottom: 0,
+        }}
+      >
+        {box.indexNum}
+      </span>
     </div>
   );
 };
