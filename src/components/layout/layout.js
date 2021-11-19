@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./layout.module.css";
 
 import Row from "../row/row";
-import Players from "../playersCanvas/playersCanvas";
+import PlayersCanvas from "../playersCanvas/playersCanvas";
 
 const gameStateDetails = ["not-started", "started", "end"];
 
@@ -14,7 +14,11 @@ const Layout = (props) => {
         <Row rowLayout={rowLayout} key={i} boxDimension={boxDimension} />
       ))}
       {gameState === gameStateDetails[1] && (
-        <Players players={players} playerTurn={playerTurn} layout={layout} />
+        <PlayersCanvas
+          players={players}
+          playerTurn={playerTurn}
+          layout={layout}
+        />
       )}
     </div>
   );

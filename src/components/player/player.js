@@ -3,7 +3,7 @@ import styles from "./player.module.css";
 
 const initialState = {
   offsetLeft: -100,
-  offsetTop: -100,
+  offsetTop: -300,
 };
 
 const Player = (props) => {

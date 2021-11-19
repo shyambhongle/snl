@@ -1,12 +1,9 @@
 .App{
   width: 100vw;
   height: 100vh;
-display: flex;
-flex: 1;
-flex-direction: column;
   margin: 0px;
   border: 0px;
   padding: 0px;
   overflow: hidden;
-  display: flex;
-background-color: burlywood;}
+background-color: burlywood;
+}

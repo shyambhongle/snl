@@ -2,33 +2,34 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "./canvas.module.css";
 
 function Canvas(props) {
-  const { setBoxDetails, totalBoxes } = props;
   const canvasRef = useRef();
   const [context, setContext] = useState();
-  const [boardProperties, setBoardProperties] = useState({
-    height: 0,
-    width: 0,
-  });
-
+  const obstacles = props.obstacle;
   useEffect(() => {
     if (canvasRef.current) {
       const renderCtx = canvasRef.current.getContext("2d");
+
       if (renderCtx) {
         setContext(renderCtx);
       }
     }
+
+    // Draw a circle
     if (context) {
-      let boardDetails = {
-        width: canvasRef.current.offsetHeight,
-        height: canvasRef.current.offsetWidth,
-      };
-      setBoardProperties(boardDetails);
-      genrateBoxes();
+      obstacles.forEach((obstacle) => {
+        const { startBox, endBox, color, obstacleType } = obstacle;
+        context.strokeStyle = obstacleType === "snake" ? "red" : "blue";
+        context.lineWidth = 5;
+        context.beginPath();
+        context.moveTo(startBox.offsetLeft, startBox.offsetTop);
+        context.lineTo(endBox.offsetLeft, endBox.offsetTop);
+        context.stroke();
+      });
+      // context.beginPath();
+      // context.rect(20, 20, 150, 100);
+      // context.stroke();
     }
-  }, [context]);
-
-  const genrateBoxes = () => {};
-
+  }, [context, obstacles]);
   return (
     <div className={styles.canvasConatiner}>
       <canvas

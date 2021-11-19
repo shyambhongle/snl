@@ -1,15 +1,13 @@
 .boardContainer{
    display: flex;
    flex: 1;
-      flex-direction: column;
-
+   flex-direction: column;
+   background-color: red;
 }
 
 .board{
    background-color: red;
    position: relative;
-   flex-direction: column;
-   flex: 1;
 }
 
 .dashBoard{

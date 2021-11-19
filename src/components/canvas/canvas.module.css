@@ -1,6 +1,6 @@
 .canvasConatiner{
-    background-color: transparent;
-    height: 100%;
-    width: 100%;
-    background-color: purple;
+    position: absolute;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1;
+    
 }
