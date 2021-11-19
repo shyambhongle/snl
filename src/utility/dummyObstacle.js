@@ -1,45 +1,125 @@
 export const dummySnakes = [
   {
-    start: 99,
-    end: 16,
+    startDisplayDisplay: 99,
+    endDisplayDisplay: 16,
+    start: {
+      rowNum: 9,
+      indexNum: 1,
+    },
+    end: {
+      rowNum: 1,
+      indexNum: 4,
+    },
   },
   {
-    start: 27,
-    end: 5,
+    startDisplayDisplay: 27,
+    endDisplay: 5,
+    start: {
+      rowNum: 2,
+      indexNum: 6,
+    },
+    end: {
+      rowNum: 0,
+      indexNum: 4,
+    },
   },
   {
-    start: 52,
-    end: 33,
+    startDisplay: 52,
+    endDisplay: 33,
+    start: {
+      rowNum: 5,
+      indexNum: 8,
+    },
+    end: {
+      rowNum: 3,
+      indexNum: 7,
+    },
   },
   {
-    start: 93,
-    end: 65,
+    startDisplay: 93,
+    endDisplay: 65,
+    start: {
+      rowNum: 9,
+      indexNum: 7,
+    },
+    end: {
+      rowNum: 6,
+      indexNum: 4,
+    },
   },
   {
-    start: 38,
-    end: 15,
+    startDisplay: 38,
+    endDisplay: 15,
+    start: {
+      rowNum: 3,
+      indexNum: 2,
+    },
+    end: {
+      rowNum: 1,
+      indexNum: 5,
+    },
   },
 ];
 
 export const dummyLadder = [
   {
-    start: 2,
-    end: 18,
+    startDisplay: 2,
+    endDisplay: 18,
+    start: {
+      rowNum: 0,
+      indexNum: 1,
+    },
+    end: {
+      rowNum: 1,
+      indexNum: 2,
+    },
   },
   {
-    start: 9,
-    end: 28,
+    startDisplay: 25,
+    endDisplay: 47,
+    start: {
+      rowNum: 2,
+      indexNum: 4,
+    },
+    end: {
+      rowNum: 4,
+      indexNum: 6,
+    },
   },
   {
-    start: 79,
-    end: 98,
+    startDisplay: 9,
+    endDisplay: 28,
+    start: {
+      rowNum: 0,
+      indexNum: 8,
+    },
+    end: {
+      rowNum: 2,
+      indexNum: 7,
+    },
   },
   {
-    start: 51,
-    end: 73,
+    startDisplay: 79,
+    endDisplay: 98,
+    start: {
+      rowNum: 7,
+      indexNum: 1,
+    },
+    end: {
+      rowNum: 9,
+      indexNum: 2,
+    },
   },
   {
-    start: 30,
-    end: 50,
+    startDisplay: 30,
+    endDisplay: 50,
+    start: {
+      rowNum: 2,
+      indexNum: 9,
+    },
+    end: {
+      rowNum: 4,
+      indexNum: 9,
+    },
   },
 ];

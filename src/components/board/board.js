@@ -4,7 +4,7 @@ import styles from "./board.module.css";
 import Layout from "../layout/layout";
 import Canvas from "../canvas/canvas";
 
-import { dummyLadder, dummSnakes } from "../../utility/dummyObstacle";
+import { dummyLadder, dummySnakes } from "../../utility/dummyObstacle";
 
 const playerColor = ["red", "green", "yellow", "blue"];
 const playerShape = ["square", "circle"];
@@ -55,7 +55,7 @@ const playerDetailsThree = {
 };
 
 const Board = () => {
-  const boardHeight = window.innerHeight - 200;
+  const boardHeight = window.innerHeight * 0.7;
   const boardWidth = window.innerWidth;
   const totalRows = 10;
   const boxesInRows = 10;
@@ -109,8 +109,8 @@ const Board = () => {
     const { boxesAndSnake, onlySnakes } = placeSnake(rowLayout);
     const { obstacleLayout, onlyLadder } = placeLadder(boxesAndSnake);
     setLayout(obstacleLayout);
-    console.log("klajcs", onlyLadder);
-    setObstacle([...onlyLadder, ...onlySnakes]);
+    console.log("klajcs onlySnakes", boxesAndSnake);
+    setObstacle([...onlySnakes, ...onlyLadder]);
   };
 
   const diceRoll = () => {
@@ -119,7 +119,7 @@ const Board = () => {
       setGameState(gameStateDetails[1]);
     }
     console.log("kaljsc diceValue", diceValue);
-    setdice(1);
+    setdice(diceValue);
     if (playerTurn === 100) {
       setPlayerTurn(() => 0);
     } else {
@@ -132,18 +132,15 @@ const Board = () => {
 
   const placeSnake = (rows) => {
     const onlySnakes = [];
+    let i = 0;
+
     rows.forEach((_, j) => {
-      const i = 9 - j;
-      // const isEven = i % 2 !== 0;
-      if (i > 0) {
+      if (j < 9 && j % 2 === 0) {
         let randomNum = randomNumbers(shuffleArray);
-        let head = rows[i][randomNum[0]];
-
-        if (randomNum[1] >= i) {
-          randomNum[1] = randomNum[1] - 1;
-        }
-
-        let tail = rows[randomNum[1]][randomNum[2]];
+        const snakeObstacle = dummySnakes[i];
+        let head =
+          rows[snakeObstacle.start.rowNum][snakeObstacle.start.indexNum];
+        let tail = rows[snakeObstacle.end.rowNum][snakeObstacle.end.indexNum];
         const obstacleId = Math.floor(Date.now() / 1000) + i;
         onlySnakes.push({
           startBox: head,
@@ -176,6 +173,7 @@ const Board = () => {
             obstacleId: obstacleId,
           },
         };
+        i++;
       }
     });
     return { onlySnakes, boxesAndSnake: rows };
@@ -183,24 +181,29 @@ const Board = () => {
 
   const placeLadder = (rows) => {
     const onlyLadder = [];
+    let j = 0;
     rows.forEach((_, i) => {
-      if (i < 9) {
+      if (i < 9 && i % 2 === 0) {
         let randomNum = randomNumbers();
-        let startingPoint = rows[i][randomNum[0]];
-        if (randomNum[1] <= i) {
-          randomNum[1] = i + 1;
-        }
-        let endPoint = rows[randomNum[1]][randomNum[2]];
-        if (startingPoint.hasObstacle) {
-          let updatedPoint =
-            randomNum[0] === 9 || randomNum[0] === 0 ? 8 : randomNum[1] - 1;
-          startingPoint = rows[i][updatedPoint];
-        }
-        if (endPoint.hasObstacle) {
-          let updatedPoint =
-            randomNum[2] === 9 || randomNum[2] === 0 ? 8 : randomNum[1] - 1;
-          endPoint = rows[randomNum[1]][updatedPoint];
-        }
+        const ladderObstacle = dummyLadder[j];
+        let startingPoint =
+          rows[ladderObstacle.start.rowNum][ladderObstacle.start.indexNum];
+        // if (randomNum[1] <= i) {
+        //   randomNum[1] = i + 1;
+        // }
+        // let endPoint = rows[randomNum[1]][randomNum[2]];
+        // if (startingPoint.hasObstacle) {
+        //   let updatedPoint =
+        //     randomNum[0] === 9 || randomNum[0] === 0 ? 8 : randomNum[1] - 1;
+        //   startingPoint = rows[i][updatedPoint];
+        // }
+        // if (endPoint.hasObstacle) {
+        //   let updatedPoint =
+        //     randomNum[2] === 9 || randomNum[2] === 0 ? 8 : randomNum[1] - 1;
+        //   endPoint = rows[randomNum[1]][updatedPoint];
+        // }
+        let endPoint =
+          rows[ladderObstacle.end.rowNum][ladderObstacle.end.indexNum];
         const obstacleId = Math.floor(Date.now() / 1000) + i;
 
         onlyLadder.push({
@@ -234,6 +237,7 @@ const Board = () => {
             obstacleId: obstacleId,
           },
         };
+        j++;
       }
     });
     return { onlyLadder: onlyLadder, obstacleLayout: rows };
@@ -257,8 +261,11 @@ const Board = () => {
   const checkForObstacle = (updatedPlayers) => {
     const currentPlayer = updatedPlayers[playerTurn];
     const boxDetails = layout[currentPlayer.rowNum][currentPlayer.indexNum];
-
-    if (boxDetails.hasObstacle) {
+    console.log("boxDetails.hasObstacle", boxDetails);
+    if (
+      boxDetails.hasObstacle &&
+      boxDetails.obstacleDetails.currentBox === "head"
+    ) {
       let finalPosition = boxDetails.obstacleDetails.endBox;
       let updatedValue = {
         ...currentPlayer,
@@ -271,7 +278,7 @@ const Board = () => {
       updatedPlayers[playerTurn] = updatedValue;
       setTimeout(() => {
         setPlayers([...updatedPlayers]);
-      }, 1000);
+      }, 300);
     }
   };
 
