@@ -1,0 +1,13 @@
+.infoSpace{
+    display: flex;
+    flex: 1;
+    }
+
+.ctrlWrapper{
+    width: 100%;
+    height: 70px;
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+}

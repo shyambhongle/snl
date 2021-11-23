@@ -5,5 +5,10 @@
   border: 0px;
   padding: 0px;
   overflow: hidden;
-background-color: burlywood;
+}
+
+
+.audio-element{
+  position: absolute;
+  z-index: -100;
 }

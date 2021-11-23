@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
 import styles from "./board.module.css";
+import io from "socket.io-client";
 
 import Layout from "../layout/layout";
-import Canvas from "../canvas/canvas";
+import Controller from "../controller/controller";
+import Timer from "../timerSpace/timer";
+import CreateRoom from "../createRoom/createRoom";
+import background from "../../assets/board.jpeg";
 
 import { dummyLadder, dummySnakes } from "../../utility/dummyObstacle";
+
+var socket = io("http://localhost:5000", { transports: ["websocket"] });
 
 const playerColor = ["red", "green", "yellow", "blue"];
 const playerShape = ["square", "circle"];
@@ -56,7 +62,7 @@ const playerDetailsThree = {
 
 const Board = () => {
   const boardHeight = window.innerHeight * 0.7;
-  const boardWidth = window.innerWidth;
+  const boardWidth = window.innerWidth - 10;
   const totalRows = 10;
   const boxesInRows = 10;
   const boxDimension = {
@@ -72,6 +78,7 @@ const Board = () => {
     // playerDetailsThree,
   ]);
   const [dice, setdice] = useState(0);
+  const [roomId, setRoomId] = useState("");
   const [playerTurn, setPlayerTurn] = useState(100);
   const [gameState, setGameState] = useState(gameStateDetails[0]);
 
@@ -82,6 +89,13 @@ const Board = () => {
   useEffect(() => {
     playerMovement();
   }, [playerTurn]);
+
+  // useEffect(() => {
+  //   if (!socket) return;
+  //   socket.o((event, args) => {
+  //     console.log("SCK event", event, args);
+  //   });
+  // }, [socket]);
 
   const genrateBoxes = () => {
     const rowLayout = [];
@@ -113,13 +127,18 @@ const Board = () => {
     setObstacle([...onlySnakes, ...onlyLadder]);
   };
 
-  const diceRoll = () => {
-    const diceValue = Math.floor(Math.random() * (6 - 1 + 1)) + 1;
+  const diceRoll = (diceValue) => {
     if (gameState === gameStateDetails[0]) {
       setGameState(gameStateDetails[1]);
     }
     console.log("kaljsc diceValue", diceValue);
     setdice(diceValue);
+    if (playerTurn !== 100 && players[playerTurn].playerId === "shyam") {
+      socket.emit("dice-move", {
+        value: diceValue,
+        room: 777,
+      });
+    }
     if (playerTurn === 100) {
       setPlayerTurn(() => 0);
     } else {
@@ -352,22 +371,30 @@ const Board = () => {
   };
 
   return (
-    <div className={styles.boardContainer}>
+    <div
+      className={styles.boardContainer}
+      style={{ backgroundImage: `url(${background})` }}
+    >
       <div
         className={styles.board}
         style={{ height: `${boardHeight}px`, width: `${boardWidth}px` }}
       >
-        <Canvas obstacle={obstacle} height={boardHeight} width={boardWidth} />
+        <div className={styles.header}></div>
         <Layout
           layout={layout}
           boxDimension={boxDimension}
           players={players}
           playerTurn={playerTurn}
           gameState={gameState}
+          boardWidth={boardWidth}
+          boardHeight={boardHeight}
+          obstacle={obstacle}
+          socket={socket}
         />
       </div>
       <div className={styles.dashBoard}>
-        <button onClick={diceRoll}>Roll</button>
+        <Timer />
+        <Controller diceRoll={diceRoll} socket={socket} />
       </div>
     </div>
   );

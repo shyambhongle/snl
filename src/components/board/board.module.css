@@ -1,12 +1,17 @@
 .boardContainer{
    display: flex;
    flex: 1;
+   height: 100%;
+   width: 100%;
    flex-direction: column;
-   background-color: red;
+   justify-content: center;
+   align-items: center;
 }
-
+.header{
+   height: 50px;
+   width: 100%;
+}
 .board{
-   background-color: red;
    position: relative;
 }
 
@@ -14,5 +19,5 @@
    display: flex;
    flex-direction: column;
    flex: 1;
-   background-color: blue;
+   width: 100%;
 }
