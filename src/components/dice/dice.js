@@ -7,13 +7,14 @@ const DiceSound = require("../../assets/roll.wav");
 const DiceBox = (props) => {
   const diceRef = useRef();
 
-  const { roll, socket } = props;
+  const { roll, socket, roomDetails } = props;
   const [diceCheat, setdiceCheat] = useState(0);
   useEffect(() => {
-    socket.on("dice-roll", (data) => {
-      console.log("SCK dice-roll called", data);
-      setdiceCheat(() => data);
-      diceRef.current.rollDice();
+    socket.on("dice-roll", ({ diceValue }) => {
+      if (roomDetails.roomId !== socket.id) {
+        setdiceCheat(() => diceValue);
+        diceRef.current.rollDice();
+      }
     });
     return () => {
       socket.off("dice-roll");
@@ -21,6 +22,12 @@ const DiceBox = (props) => {
   }, []);
 
   const rollMyDice = (value) => {
+    if (roomDetails.roomId === socket.id) {
+      socket.emit("dice-move", {
+        diceValue: value,
+        roomId: roomDetails.roomId,
+      });
+    }
     setdiceCheat(0);
     roll(value);
   };

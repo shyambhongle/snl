@@ -24,7 +24,7 @@ const Player = (props) => {
         };
       });
     }
-  }, [props]);
+  }, [props.playerDetails]);
 
   return (
     <div

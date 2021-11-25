@@ -8,7 +8,6 @@ function Canvas(props) {
   useEffect(() => {
     if (canvasRef.current) {
       const renderCtx = canvasRef.current.getContext("2d");
-
       if (renderCtx) {
         setContext(renderCtx);
       }

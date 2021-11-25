@@ -10,7 +10,7 @@ function App() {
   useEffect(() => {
     setTimeout(() => {
       setSplashScreen(false);
-    }, 500);
+    }, 1000);
   }, []);
 
   return (

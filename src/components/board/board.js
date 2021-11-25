@@ -8,6 +8,10 @@ import Timer from "../timerSpace/timer";
 import CreateRoom from "../createRoom/createRoom";
 import background from "../../assets/board.jpeg";
 
+import MuteIcon from "../../assets/no-sound.png";
+import UnMuteIcon from "../../assets/sound.png";
+import SoundBG from "../../assets/back.mp3";
+
 import { dummyLadder, dummySnakes } from "../../utility/dummyObstacle";
 
 var socket = io("http://localhost:5000", { transports: ["websocket"] });
@@ -27,39 +31,6 @@ const shuffleArray = [0, 1, 2, 3, 4, 5, 6, 7, 9];
 //   obstacleDetails: {},
 // };
 
-const playerDetailsOne = {
-  color: playerColor[1],
-  shape: playerShape[1],
-  displayNum: 0,
-  indexNum: 0,
-  rowNum: 0,
-  playerId: "ram",
-  offsetLeft: -100,
-  offsetTop: -100,
-};
-
-const playerDetailsTwo = {
-  color: playerColor[0],
-  shape: playerShape[0],
-  displayNum: 0,
-  indexNum: 0,
-  rowNum: 0,
-  playerId: "shyam",
-  offsetLeft: -100,
-  offsetTop: -100,
-};
-
-const playerDetailsThree = {
-  color: playerColor[2],
-  shape: playerShape[0],
-  displayNum: 0,
-  indexNum: 0,
-  rowNum: 0,
-  playerId: "kalu",
-  offsetLeft: -100,
-  offsetTop: -100,
-};
-
 const Board = () => {
   const boardHeight = window.innerHeight * 0.7;
   const boardWidth = window.innerWidth - 10;
@@ -71,15 +42,10 @@ const Board = () => {
   };
   const [layout, setLayout] = useState([]);
   const [obstacle, setObstacle] = useState([]);
-
-  const [players, setPlayers] = useState([
-    playerDetailsOne,
-    playerDetailsTwo,
-    // playerDetailsThree,
-  ]);
+  const [players, setPlayers] = useState([]);
+  const [roomDetails, setroomDetails] = useState({});
   const [dice, setdice] = useState(0);
-  const [roomId, setRoomId] = useState("");
-  const [playerTurn, setPlayerTurn] = useState(100);
+  const [playerTurn, setPlayerTurn] = useState(0);
   const [gameState, setGameState] = useState(gameStateDetails[0]);
 
   useEffect(() => {
@@ -89,13 +55,6 @@ const Board = () => {
   useEffect(() => {
     playerMovement();
   }, [playerTurn]);
-
-  // useEffect(() => {
-  //   if (!socket) return;
-  //   socket.o((event, args) => {
-  //     console.log("SCK event", event, args);
-  //   });
-  // }, [socket]);
 
   const genrateBoxes = () => {
     const rowLayout = [];
@@ -123,29 +82,19 @@ const Board = () => {
     const { boxesAndSnake, onlySnakes } = placeSnake(rowLayout);
     const { obstacleLayout, onlyLadder } = placeLadder(boxesAndSnake);
     setLayout(obstacleLayout);
-    console.log("klajcs onlySnakes", boxesAndSnake);
     setObstacle([...onlySnakes, ...onlyLadder]);
   };
 
   const diceRoll = (diceValue) => {
-    if (gameState === gameStateDetails[0]) {
-      setGameState(gameStateDetails[1]);
-    }
     console.log("kaljsc diceValue", diceValue);
     setdice(diceValue);
-    if (playerTurn !== 100 && players[playerTurn].playerId === "shyam") {
-      socket.emit("dice-move", {
-        value: diceValue,
-        room: 777,
-      });
-    }
-    if (playerTurn === 100) {
-      setPlayerTurn(() => 0);
-    } else {
+    if (playerTurn < players.length - 1) {
       let newPlayerTurn = playerTurn + 1;
       let updatePlayerTurn =
         playerTurn < players.length - 1 ? newPlayerTurn : 0;
       setPlayerTurn(updatePlayerTurn);
+    } else {
+      setPlayerTurn(() => 0);
     }
   };
 
@@ -370,33 +319,58 @@ const Board = () => {
     };
   };
 
+  const startGame = (roomDetails) => {
+    setroomDetails(roomDetails);
+    setPlayers(roomDetails.players);
+    setGameState(gameStateDetails[1]);
+  };
+
   return (
-    <div
-      className={styles.boardContainer}
-      style={{ backgroundImage: `url(${background})` }}
-    >
-      <div
-        className={styles.board}
-        style={{ height: `${boardHeight}px`, width: `${boardWidth}px` }}
-      >
-        <div className={styles.header}></div>
-        <Layout
-          layout={layout}
-          boxDimension={boxDimension}
-          players={players}
-          playerTurn={playerTurn}
-          gameState={gameState}
-          boardWidth={boardWidth}
-          boardHeight={boardHeight}
-          obstacle={obstacle}
+    <>
+      {gameState === gameStateDetails[0] ? (
+        <CreateRoom
+          startGame={startGame}
+          roomDetails={roomDetails}
           socket={socket}
         />
-      </div>
-      <div className={styles.dashBoard}>
-        <Timer />
-        <Controller diceRoll={diceRoll} socket={socket} />
-      </div>
-    </div>
+      ) : (
+        <div
+          className={styles.boardContainer}
+          style={{ backgroundImage: `url(${background})` }}
+        >
+          <div
+            className={styles.board}
+            style={{ height: `${boardHeight}px`, width: `${boardWidth}px` }}
+          >
+            <div className={styles.header}>
+              {/* <img src={MuteIcon} alt="sound" className={styles.soundIcon} /> */}
+            </div>
+            <Layout
+              layout={layout}
+              boxDimension={boxDimension}
+              players={players}
+              playerTurn={playerTurn}
+              gameState={gameState}
+              boardWidth={boardWidth}
+              boardHeight={boardHeight}
+              obstacle={obstacle}
+              socket={socket}
+            />
+          </div>
+          <div className={styles.dashBoard}>
+            <Timer />
+            <Controller
+              diceRoll={diceRoll}
+              socket={socket}
+              allPlayers={players}
+              playerTurn={playerTurn}
+              roomDetails={roomDetails}
+              diceValue={dice}
+            />
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
