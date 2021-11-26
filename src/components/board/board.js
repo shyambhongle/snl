@@ -14,7 +14,9 @@ import SoundBG from "../../assets/back.mp3";
 
 import { dummyLadder, dummySnakes } from "../../utility/dummyObstacle";
 
-var socket = io("http://localhost:5000", { transports: ["websocket"] });
+var socket = io("http://192.168.0.104:5000/", {
+  transports: ["websocket"],
+});
 
 const playerColor = ["red", "green", "yellow", "blue"];
 const playerShape = ["square", "circle"];
@@ -32,8 +34,8 @@ const shuffleArray = [0, 1, 2, 3, 4, 5, 6, 7, 9];
 // };
 
 const Board = () => {
-  const boardHeight = window.innerHeight * 0.7;
-  const boardWidth = window.innerWidth - 10;
+  const boardHeight = window.screen.height * 0.7;
+  const boardWidth = window.screen.width - 10;
   const totalRows = 10;
   const boxesInRows = 10;
   const boxDimension = {
@@ -44,12 +46,14 @@ const Board = () => {
   const [obstacle, setObstacle] = useState([]);
   const [players, setPlayers] = useState([]);
   const [roomDetails, setroomDetails] = useState({});
+  const [myId, setmyId] = useState("");
   const [dice, setdice] = useState(0);
   const [playerTurn, setPlayerTurn] = useState(0);
   const [gameState, setGameState] = useState(gameStateDetails[0]);
 
   useEffect(() => {
     genrateBoxes();
+    setmyId(Math.floor(100000 + Math.random() * 900000));
   }, []);
 
   useEffect(() => {
@@ -88,14 +92,11 @@ const Board = () => {
   const diceRoll = (diceValue) => {
     console.log("kaljsc diceValue", diceValue);
     setdice(diceValue);
-    if (playerTurn < players.length - 1) {
-      let newPlayerTurn = playerTurn + 1;
-      let updatePlayerTurn =
-        playerTurn < players.length - 1 ? newPlayerTurn : 0;
-      setPlayerTurn(updatePlayerTurn);
-    } else {
-      setPlayerTurn(() => 0);
+    let newPlayerTurn = playerTurn + 1;
+    if (newPlayerTurn === 2) {
+      newPlayerTurn = 0;
     }
+    setPlayerTurn(newPlayerTurn);
   };
 
   const placeSnake = (rows) => {
@@ -332,6 +333,7 @@ const Board = () => {
           startGame={startGame}
           roomDetails={roomDetails}
           socket={socket}
+          myId={myId}
         />
       ) : (
         <div
@@ -366,6 +368,7 @@ const Board = () => {
               playerTurn={playerTurn}
               roomDetails={roomDetails}
               diceValue={dice}
+              myId={myId}
             />
           </div>
         </div>

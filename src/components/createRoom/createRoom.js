@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./createRoom.module.css";
 
 const CreateRoom = (props) => {
-  const { startGame, socket } = props;
+  const { startGame, socket, myId } = props;
   const [name, setName] = useState("");
   const [roomId, setRoomId] = useState("");
   const [roomDetails, setRoomDetails] = useState({});
@@ -38,6 +38,7 @@ const CreateRoom = (props) => {
       socket.emit("join-room", {
         playerType: "master",
         name: name,
+        myId: myId,
       });
     } else {
       window.alert("Please enter name");
@@ -50,6 +51,7 @@ const CreateRoom = (props) => {
         playerType: "player",
         joinRoom: roomId,
         name: name,
+        myId: myId,
       });
     } else {
       window.alert("Please enter name & room id");
